@@ -1,25 +1,26 @@
-CPP=g++
-CPPFLAGS=-I.
+CXX?=g++
+CPPFLAGS+=-I. -O3
+LDFLAGS+=-static
 PROG=prog
 
 SRCS := $(wildcard ./*.cpp)
-OBJS := $(patsubst ./%.cpp,bin/%.o,$(SRCS))
+OBJS := $(patsubst ./%.cpp,build/%.o,$(SRCS))
 
-bin/%.o: %.cpp
-	$(CPP) -c -o $@ $< $(CPPFLAGS)
+build/%.o: %.cpp
+	$(CXX) -c -o $@ $< $(CPPFLAGS)
 
 
-bin/$(PROG): bin $(OBJS)
-	$(CPP) $(LDFLAGS) $(OBJS) -o $@
+build/$(PROG): build $(OBJS)
+	$(CXX) $(LDFLAGS) $(OBJS) -o $@
 
 all: $(PROG)
 
 .PHONY: $(PROG)
-$(PROG): bin/$(PROG)
+$(PROG): build/$(PROG)
 
-.PHONY: bin
-bin:
-	mkdir -p bin
+.PHONY: build
+build:
+	mkdir -p build
 
 clean:
-	rm -rf bin
+	rm -rf build
