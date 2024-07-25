@@ -6,7 +6,8 @@ void *TaskManager::thread_fn(void *arg) {
 	w->doWork();
 	w->done = true;
 	w->doCallback();
-	write(w->fd, &w->ptid, sizeof(w->ptid));
+	if (write(w->fd, &w->ptid, sizeof(w->ptid)) == -1)
+		exit(-1);
 	pthread_exit(NULL);
 };
 
@@ -16,11 +17,8 @@ void TaskManager::spawn(Worker *w) {
 };
 
 TaskManager::TaskManager() : children(0) {
-	int r;
-	pipe(fd);
-	r = fcntl(fd[0], F_GETFL);
-	r |= O_NONBLOCK;
-	fcntl(fd[0], F_SETFL, r);
+	if (pipe2(fd, O_NONBLOCK) == -1)
+		exit(-1);
 };
 
 TaskManager::~TaskManager() {
@@ -37,8 +35,7 @@ void TaskManager::spawnWorker(Worker *w) {
 bool TaskManager::checkWorkers() {
 	pthread_t tid;
 	if (read(fd[0], &tid, sizeof(tid)) > 0) {
-		tdebug("Joining %lx\n", tid);
-		pthread_join(tid, NULL);
+		tdebug("Child [%lx] finished\n", tid);
 		children --;
 		return true;
 	}
