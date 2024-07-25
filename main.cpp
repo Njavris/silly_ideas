@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <chrono>
 #include <string>
-#include <fstream>
 
 #include "multithr.h"
 
@@ -108,14 +107,11 @@ string point(int target, int children) {
 }
 
 void test() {
-	ofstream file;
-//	file.open("test.csv");
-	int children = 4;
-	for (uint64_t i = children; i < 0x8000000000000000; i+= children * 10) {
+	int children = 16;
+	for (uint64_t i = children; i < 0x8000000000000000; i+= children) {
 		string ret = point(i, children);
-//		file << ret << endl;
+		cout << ret << endl;
 	}
-//	file.close();
 }
 
 int main()
